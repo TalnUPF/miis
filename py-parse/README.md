@@ -1,6 +1,6 @@
 # Surface/Deep parser 
 
-This repo contains a program for parsing text to surface syntax (and deep syntax, optionally). The program is composed by:
+This utility consists of a program for parsing text to surface syntax (and deep syntax, optionally). The program is composed by:
 - A main script (parse.py)
 - A client module for the surface parser (clients/transition_client.py)
 - A client module for the deep parser (clients/mate_client.py)

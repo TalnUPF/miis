@@ -25,7 +25,7 @@ optional arguments:
   -d, --deep_parse      Do also the deep parsing of the text.
 ```
 
-Also, within this repo, you'll find the samples directory, containing a set of example text files.
+Also, within this repo, you'll find the samples directory, containing a set of sample text files.
 For example, you can execute 'python parse.py -s output -d samples/test3.txt'. This execution should create an 'output' directory containing two files:
 
 - test3.surface.conll, containing the surface parse result.

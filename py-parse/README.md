@@ -6,9 +6,15 @@ This utility consists of a program for parsing text to surface syntax (and deep 
 - A client module for the deep parser (clients/mate_client.py)
 - A utility module for dealing with conll structures (clients/conll.py)
 
-You'll need Python 2.7 installed.
+You'll need Python 2.7 and NLTK module installed and NLTK punkt data downloaded.
+In order to download punkt data, run the following commands into the python console:
+```
+>>> import nltk
+>>> nltk.download('punkt')
+```
+(More information about NLTK data [here](http://www.nltk.org/data.html))
 
-The usage, showed running 'python parse.py -h', is as follows:
+The usage, shown running 'python parse.py -h', is as follows:
 ```
 usage: parse.py [-h] [-s SAVE_DIR] [-d] FILE [FILE ...]
 

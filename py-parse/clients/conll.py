@@ -3,7 +3,7 @@
 
 class ConllStruct(object):
 
-    def __init__(self, raw_conll=None):
+    def __init__(self, raw_conll=None, tokenClass=ConllToken2009):
         
         self.sentences = []
         
@@ -23,7 +23,7 @@ class ConllStruct(object):
                         raw_sentence += line + u'\n'
 
                     elif raw_sentence:
-                        sentence = ConllSentence(raw_sentence)
+                        sentence = ConllSentence(raw_sentence, tokenClass)
                         self.sentences.append(sentence)
                         raw_sentence = ""
 
@@ -43,7 +43,7 @@ class ConllStruct(object):
 
 class ConllSentence(object):
 
-    def __init__(self, raw_sentence):
+    def __init__(self, raw_sentence, tokenClass=ConllToken2009):
 
         self.tokens = {}
         self.token_list = []
@@ -55,7 +55,7 @@ class ConllSentence(object):
                 self.raw_tokens = self.raw_sentence.split(u'\n')
                 
                 for raw_token in self.raw_tokens:
-                    token = ConllToken2009(raw_token)
+                    token = tokenClass(raw_token)
 
                     self.tokens[token.id] = token
                     self.token_list.append(token)
@@ -64,12 +64,12 @@ class ConllSentence(object):
                 
                 for token in self.token_list:
                     # tries to use phead as parent-child relation
-                    if token.phead != u'_':
+                    if hasattr(token, 'phead') and token.phead != u'_':
                         if token.phead != u'0':
                             self.tokens[token.phead].add_child(token)
                     
                     # if phead is empty, tries head
-                    elif token.head not in (u'0', u'_'):
+                    elif hasattr(token, 'head') and token.head not in (u'0', u'_'):
                         self.tokens[token.head].add_child(token)
 
                 self.plain_sentence = self.plain_sentence[:-1]
@@ -116,6 +116,58 @@ class ConllToken2009(object):
 
             self.features = self._parse_features(self.feat)
             self.pfeatures = self._parse_features(self.pfeat)
+
+            self.children = []
+            
+        else:
+            raise Exception('Empty conll token!')
+
+    def add_child(self, child_token):
+        self.children.append(child_token)
+        
+    def _parse_features(self, feat_str):
+        try:
+            feat_dict = {}
+            
+            if feat_str != u"_":
+                feat_list = feat_str.split(u"|")
+                for feat in feat_list:
+                    name, value = feat.split(u"=")
+                    feat_dict[name] = value
+
+            return feat_dict
+            
+        except:
+            return None
+    
+    def get_feature_value(self, name):
+        return self.features.get(name)
+
+    def get_pfeature_value(self, name):
+        return self.pfeatures.get(name)
+
+    def __repr__(self):
+        return u'\t'.join(self.columns).encode("utf8")
+
+class ConllTokenUD(object):
+
+    def __init__(self, raw_token):
+
+        if raw_token.strip():
+            self.columns = raw_token.split(u'\t')
+
+            self.id         = self.columns[0]
+            self.form       = self.columns[1]
+            self.lemma      = self.columns[2]
+            self.upos       = self.columns[3]
+            self.xpos       = self.columns[4]
+            self.feat       = self.columns[5]
+            self.head       = self.columns[6]
+            self.deprel     = self.columns[7]
+            self.deps       = self.columns[8]
+            self.misc       = self.columns[9]
+
+            self.features = self._parse_features(self.feat)
 
             self.children = []
             

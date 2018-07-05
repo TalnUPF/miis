@@ -1,97 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-class ConllStruct(object):
-
-    def __init__(self, raw_conll=None, tokenClass=ConllToken2009):
-        
-        self.sentences = []
-        
-        if raw_conll is None:
-            # Create an empty ConllStruct
-            pass
-
-        else:
-            self.raw_conll = raw_conll.strip()
-
-            if self.raw_conll:
-
-                raw_sentence = u""
-                for line in raw_conll.split(u'\n'):
-
-                    if line.strip():
-                        raw_sentence += line + u'\n'
-
-                    elif raw_sentence:
-                        sentence = ConllSentence(raw_sentence, tokenClass)
-                        self.sentences.append(sentence)
-                        raw_sentence = ""
-
-            else:
-                raise Exception('Empty conll!')
-
-    def __add__(self, other):
-        for sentence in other:
-            self.sentences.append(sentence)
-        return self
-
-    def __iter__(self):
-        return iter(self.sentences)
-
-    def __repr__(self):
-        return '\n\n'.join(map(str, self.sentences))
-
-class ConllSentence(object):
-
-    def __init__(self, raw_sentence, tokenClass=ConllToken2009):
-
-        self.tokens = {}
-        self.token_list = []
-        self.plain_sentence = ""
-        self.raw_sentence = raw_sentence.strip()
-        
-        if self.raw_sentence:
-            try:
-                self.raw_tokens = self.raw_sentence.split(u'\n')
-                
-                for raw_token in self.raw_tokens:
-                    token = tokenClass(raw_token)
-
-                    self.tokens[token.id] = token
-                    self.token_list.append(token)
-                    
-                    self.plain_sentence += token.form + u" "
-                
-                for token in self.token_list:
-                    # tries to use phead as parent-child relation
-                    if hasattr(token, 'phead') and token.phead != u'_':
-                        if token.phead != u'0':
-                            self.tokens[token.phead].add_child(token)
-                    
-                    # if phead is empty, tries head
-                    elif hasattr(token, 'head') and token.head not in (u'0', u'_'):
-                        self.tokens[token.head].add_child(token)
-
-                self.plain_sentence = self.plain_sentence[:-1]
-            except:
-                print raw_sentence
-                raise
-
-        else:
-            raise Exception('Empty conll sentence!')
-
-    def __iter__(self):
-        return iter(self.token_list)
-
-    def __repr__(self):
-        return '\n'.join(map(str, self.token_list))
-
-    def get_token(self, token_id):
-        return self.tokens[token_id]
-        
-    def get_form_sentence(self):
-        return self.plain_sentence
-
 class ConllToken2009(object):
 
     def __init__(self, raw_token):
@@ -200,3 +109,94 @@ class ConllTokenUD(object):
 
     def __repr__(self):
         return u'\t'.join(self.columns).encode("utf8")
+class ConllStruct(object):
+
+    def __init__(self, raw_conll=None, tokenClass=ConllToken2009):
+        
+        self.sentences = []
+        
+        if raw_conll is None:
+            # Create an empty ConllStruct
+            pass
+
+        else:
+            self.raw_conll = raw_conll.strip()
+
+            if self.raw_conll:
+
+                raw_sentence = u""
+                for line in raw_conll.split(u'\n'):
+
+                    if line.strip():
+                        raw_sentence += line + u'\n'
+
+                    elif raw_sentence:
+                        sentence = ConllSentence(raw_sentence, tokenClass)
+                        self.sentences.append(sentence)
+                        raw_sentence = ""
+
+            else:
+                raise Exception('Empty conll!')
+
+    def __add__(self, other):
+        for sentence in other:
+            self.sentences.append(sentence)
+        return self
+
+    def __iter__(self):
+        return iter(self.sentences)
+
+    def __repr__(self):
+        return '\n\n'.join(map(str, self.sentences))
+
+class ConllSentence(object):
+
+    def __init__(self, raw_sentence, tokenClass=ConllToken2009):
+
+        self.tokens = {}
+        self.token_list = []
+        self.plain_sentence = ""
+        self.raw_sentence = raw_sentence.strip()
+        
+        if self.raw_sentence:
+            try:
+                self.raw_tokens = self.raw_sentence.split(u'\n')
+                
+                for raw_token in self.raw_tokens:
+                    token = tokenClass(raw_token)
+
+                    self.tokens[token.id] = token
+                    self.token_list.append(token)
+                    
+                    self.plain_sentence += token.form + u" "
+                
+                for token in self.token_list:
+                    # tries to use phead as parent-child relation
+                    if hasattr(token, 'phead') and token.phead != u'_':
+                        if token.phead != u'0':
+                            self.tokens[token.phead].add_child(token)
+                    
+                    # if phead is empty, tries head
+                    elif hasattr(token, 'head') and token.head not in (u'0', u'_'):
+                        self.tokens[token.head].add_child(token)
+
+                self.plain_sentence = self.plain_sentence[:-1]
+            except:
+                print raw_sentence
+                raise
+
+        else:
+            raise Exception('Empty conll sentence!')
+
+    def __iter__(self):
+        return iter(self.token_list)
+
+    def __repr__(self):
+        return '\n'.join(map(str, self.token_list))
+
+    def get_token(self, token_id):
+        return self.tokens[token_id]
+        
+    def get_form_sentence(self):
+        return self.plain_sentence
+
